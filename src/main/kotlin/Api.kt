@@ -21,7 +21,7 @@ fun Application.module() {
             val mostSoldProduct = users.flatMap { it.orders }
                 .flatMap { it.orderItems }
                 .groupBy { it.product }
-                .maxByOrNull { it.value.sumBy { item -> item.quantity } }
+                .maxByOrNull { it.value.sumOf { item -> item.quantity } }
                 ?.key
             call.respond(mostSoldProduct ?: HttpStatusCode.NotFound)
         }
@@ -49,7 +49,7 @@ fun Application.module() {
                     .filter { it.category.id == categoryId }
                     .distinct()
             }
-            if (productsByCategory != null && productsByCategory.isNotEmpty()) {
+            if (!productsByCategory.isNullOrEmpty()) {
                 call.respond(productsByCategory)
             } else {
                 call.respond(HttpStatusCode.NotFound)
@@ -69,10 +69,7 @@ fun Application.module() {
         }
     }
 }
-fun startServer() {
-    embeddedServer(Netty, port = 8080, module = Application::module).start(wait = true)
-}
 
-fun main() {
+fun startServer() {
     embeddedServer(Netty, port = 8080, module = Application::module).start(wait = true)
 }
